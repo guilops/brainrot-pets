@@ -2,6 +2,13 @@
 
 Jogo clicker de mascotes feito com HTML, CSS e JavaScript. Não precisa de build, servidor ou dependências: o GitHub Pages publica os arquivos diretamente e é gratuito para repositórios públicos.
 
+## Como funciona o jogo
+
+- Clique no mascote principal para ganhar braincoins e subir de nível.
+- Os ovos ficam mais caros a cada chocada. Mais cliques desbloqueiam novos mascotes e aumentam as chances de encontrar raridades especiais.
+- Na coleção, toque em um mascote que você já ganhou para ver a ficha, a renda passiva e a chance atual no ovo; use **Escolher para clicar** para colocá-lo na área principal. O mascote escolhido fica salvo no navegador.
+- Os mascotes duplicados continuam acumulando renda passiva.
+
 ## Publicar gratuitamente com GitHub Pages
 
 ### 1. Crie um repositório

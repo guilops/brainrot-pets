@@ -61,6 +61,7 @@
             <span class="pet-spark spark-three" aria-hidden="true">✦</span>
           </button>
           <div class="tap-label">TAP TAP TAP <span aria-hidden="true">👆</span></div>
+          <div class="active-pet-label" id="active-pet-label">Pet inicial</div>
           <div class="quick-stats">
             <div class="quick-stat"><span aria-hidden="true">🖱️</span><span><strong id="total-clicks">0</strong><small>cliques totais</small></span></div>
             <div class="quick-stat"><span aria-hidden="true">🐾</span><span><strong id="pet-count">0</strong><small>pets na coleção</small></span></div>
@@ -71,7 +72,7 @@
           <div class="egg-copy">
             <p class="eyebrow">SURPRESA, SURPRESA!</p>
             <h2 id="egg-title">Ovo misterioso <span aria-hidden="true">🥚</span></h2>
-            <p>Quem será que vem aí? Cada pet dá moedas sem parar!</p>
+            <p>Quem será que vem aí? Cada ovo fica mais caro, e cliques liberam pets novos!</p>
           </div>
           <button class="hatch-button" id="hatch-button" type="button">
             <span class="egg-emoji" aria-hidden="true">🥚</span>
@@ -79,11 +80,23 @@
           </button>
         </section>
 
+        <section class="next-unlock-card" id="next-unlock">
+          <div class="next-unlock-icon" aria-hidden="true">🔒</div>
+          <div class="next-unlock-copy">
+            <p class="eyebrow">PRÓXIMA SURPRESA</p>
+            <strong id="next-unlock-name">Gatinho Pixel</strong>
+            <span id="next-unlock-rarity">Raro</span>
+            <div class="next-unlock-track"><span id="next-unlock-progress"></span></div>
+          </div>
+          <span class="next-unlock-label" id="next-unlock-label">25 cliques para desbloquear</span>
+        </section>
+
         <section class="collection-card" aria-labelledby="collection-title">
           <div class="section-heading">
             <div><p class="eyebrow">SUA TURMA</p><h2 id="collection-title">Coleção de pets</h2></div>
             <span class="collection-count" id="collection-count">0 pets</span>
           </div>
+          <p class="collection-hint">Toque em um pet para ver os detalhes e escolher quem vai receber seus taps.</p>
           <div class="collection-grid" id="collection-grid">
             <div class="empty-collection"><span aria-hidden="true">🫣</span><p>Seus pets vão aparecer aqui!</p><small>Choque um ovo para começar</small></div>
           </div>
@@ -129,6 +142,20 @@
       <h2 id="hatch-result">O que será que vem aí?</h2>
     </div>
   </div>
+  <dialog class="pet-dialog" id="pet-dialog" aria-labelledby="pet-dialog-name">
+    <button class="pet-dialog-close" id="pet-dialog-close" type="button" aria-label="Fechar detalhes">×</button>
+    <div class="pet-detail-art" id="pet-detail-art" aria-hidden="true">🐸</div>
+    <p class="eyebrow pet-detail-eyebrow">FICHA DO MASCOTE</p>
+    <h2 id="pet-dialog-name">Sapo Meme</h2>
+    <span class="pet-detail-rarity" id="pet-detail-rarity">Comum</span>
+    <p class="pet-detail-description" id="pet-detail-description"></p>
+    <div class="pet-detail-stats">
+      <div><span>RENDA PASSIVA</span><strong id="pet-detail-cps">+0 moedas/s</strong></div>
+      <div><span>NA SUA COLEÇÃO</span><strong id="pet-detail-count">×1</strong></div>
+      <div><span>CHANCE NO OVO</span><strong id="pet-detail-chance">48%</strong></div>
+    </div>
+    <button class="pet-select-button" id="pet-select-button" type="button">Escolher para clicar</button>
+  </dialog>
   <script src="script.js"></script>
 </body>
 </html>

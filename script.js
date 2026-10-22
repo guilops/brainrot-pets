@@ -3,13 +3,17 @@
 const SAVE_KEY = "brainrotPetsSaveV1";
 const EGG_COST = 50;
 const MAX_OFFLINE_SECONDS = 4 * 60 * 60;
+const EGG_COST_GROWTH = 1.28;
 
 const pets = [
-  { name: "Sapo Meme", emoji: "🐸", rarity: "Comum", cps: 0.4, weight: 48 },
-  { name: "Pombo Turbo", emoji: "🐦", rarity: "Comum", cps: 0.5, weight: 32 },
-  { name: "Gatinho Pixel", emoji: "🐱", rarity: "Raro", cps: 1.5, weight: 13 },
-  { name: "Capivara Zen", emoji: "🦫", rarity: "Épico", cps: 5, weight: 5 },
-  { name: "Dragão Cósmico", emoji: "🐉", rarity: "Lendário", cps: 18, weight: 2 }
+  { name: "Sapo Meme", emoji: "🐸", rarity: "Comum", cps: 0.4, weight: 48, unlockAt: 0, description: "O rei dos pulinhos e dos memes. Começou humilde, mas nunca para de render moedas." },
+  { name: "Pombo Turbo", emoji: "🐦", rarity: "Comum", cps: 0.5, weight: 32, unlockAt: 0, description: "Entrega moedas na velocidade da luz. Se ouvir um pombo, já sabe: vem renda por aí." },
+  { name: "Gatinho Pixel", emoji: "🐱", rarity: "Raro", cps: 1.5, weight: 13, unlockAt: 25, description: "Um gatinho saído de um fliperama secreto, com energia pixelada de sobra." },
+  { name: "Pato DJ", emoji: "🦆", rarity: "Raro", cps: 2.5, weight: 8, unlockAt: 75, description: "Solta o beat, gira o bico e transforma qualquer pista em uma chuva de moedas." },
+  { name: "Capivara Zen", emoji: "🦫", rarity: "Épico", cps: 5, weight: 5, unlockAt: 150, description: "Calminha por fora, máquina de moedas por dentro. A paz nunca foi tão lucrativa." },
+  { name: "Dragão Cósmico", emoji: "🐉", rarity: "Lendário", cps: 18, weight: 2, unlockAt: 300, description: "Uma lenda galáctica! Raríssimo, brilhante e com uma chuva de moedas no rastro." },
+  { name: "Axolote Neon", emoji: "🦎", rarity: "Lendário", cps: 32, weight: 1, unlockAt: 700, description: "Brilha no escuro e deixa um rastro de neon. Um lendário de outro planeta!" },
+  { name: "Unicórnio Glitch", emoji: "🦄", rarity: "Mítico", cps: 75, weight: 0.35, unlockAt: 1500, description: "Um bug raríssimo do universo! Quase impossível de achar e absurdamente poderoso." }
 ];
 
 const upgrades = [
@@ -32,6 +36,8 @@ const defaultState = () => ({
   clickPower: 1,
   upgrades: { glove: 0, auto: 0, coffee: 0 },
   pets: {},
+  selectedPet: null,
+  eggsHatched: 0,
   unlockedAchievements: [],
   savedAt: Date.now()
 });
@@ -60,7 +66,19 @@ const ui = {
   hatchEgg: document.getElementById("hatch-egg"),
   hatchResult: document.getElementById("hatch-result"),
   hatchModal: document.querySelector(".hatch-modal"),
-  toastStack: document.getElementById("toast-stack")
+  toastStack: document.getElementById("toast-stack"),
+  mainPet: document.getElementById("main-pet"),
+  activePetLabel: document.getElementById("active-pet-label"),
+  petDialog: document.getElementById("pet-dialog"),
+  petDialogClose: document.getElementById("pet-dialog-close"),
+  petDetailArt: document.getElementById("pet-detail-art"),
+  petDetailName: document.getElementById("pet-dialog-name"),
+  petDetailRarity: document.getElementById("pet-detail-rarity"),
+  petDetailDescription: document.getElementById("pet-detail-description"),
+  petDetailCps: document.getElementById("pet-detail-cps"),
+  petDetailCount: document.getElementById("pet-detail-count"),
+  petDetailChance: document.getElementById("pet-detail-chance"),
+  petSelectButton: document.getElementById("pet-select-button")
 };
 
 function loadState() {
@@ -78,6 +96,10 @@ function loadState() {
     if (saved.pets && typeof saved.pets === "object") {
       for (const pet of pets) clean.pets[pet.name] = Math.floor(finiteNonNegative(saved.pets[pet.name]));
     }
+    clean.selectedPet = pets.some((pet) => pet.name === saved.selectedPet && clean.pets[pet.name] > 0)
+      ? saved.selectedPet
+      : null;
+    clean.eggsHatched = Math.floor(finiteNonNegative(saved.eggsHatched));
     clean.unlockedAchievements = Array.isArray(saved.unlockedAchievements)
       ? saved.unlockedAchievements.filter((id) => achievements.some((item) => item.id === id))
       : [];
@@ -115,6 +137,14 @@ function getPetCount() {
   return Object.values(state.pets).reduce((sum, count) => sum + count, 0);
 }
 
+function getEggCost() {
+  return Math.min(1_000_000_000_000, Math.ceil((EGG_COST * Math.pow(EGG_COST_GROWTH, state.eggsHatched)) / 5) * 5);
+}
+
+function getAvailablePets(clickCount = state.totalClicks) {
+  return pets.filter((pet) => pet.unlockAt <= clickCount);
+}
+
 function formatNumber(number) {
   if (number < 1000) return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: number % 1 ? 1 : 0 }).format(number);
   return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(number);
@@ -141,10 +171,12 @@ function render() {
   ui.level.textContent = levelInfo.level;
   ui.progress.style.width = `${levelInfo.progress}%`;
   ui.progressLabel.textContent = `${levelInfo.progress} / 100 XP`;
-  ui.eggCost.textContent = EGG_COST;
-  ui.hatchButton.disabled = hatchInProgress || state.coins < EGG_COST;
+  renderActivePet();
+  ui.eggCost.textContent = formatNumber(getEggCost());
+  ui.hatchButton.disabled = hatchInProgress || state.coins < getEggCost();
   renderUpgrades();
   renderCollection();
+  renderNextUnlock();
   renderAchievements();
 }
 
@@ -185,8 +217,9 @@ function renderUpgrades() {
 function renderCollection() {
   ui.collection.replaceChildren();
   const count = getPetCount();
-  ui.collectionCount.textContent = `${count} ${count === 1 ? "pet" : "pets"}`;
   const ownedPets = pets.filter((pet) => state.pets[pet.name] > 0);
+  const uniqueCount = ownedPets.length;
+  ui.collectionCount.textContent = `${count} ${count === 1 ? "pet" : "pets"} · ${uniqueCount}/${pets.length} espécies`;
   if (ownedPets.length === 0) {
     const empty = document.createElement("div");
     empty.className = "empty-collection";
@@ -195,8 +228,12 @@ function renderCollection() {
     return;
   }
   for (const pet of ownedPets) {
-    const card = document.createElement("div");
-    card.className = "pet-card";
+    const active = state.selectedPet === pet.name;
+    const card = document.createElement("button");
+    card.className = `pet-card${active ? " active" : ""}`;
+    card.type = "button";
+    card.dataset.petName = pet.name;
+    card.setAttribute("aria-label", `${pet.name}, ${pet.rarity}, ${formatNumber(pet.cps)} moedas por segundo${active ? ", pet ativo" : ""}. Ver detalhes`);
     const emoji = document.createElement("span");
     emoji.className = "pet-card-emoji";
     emoji.setAttribute("aria-hidden", "true");
@@ -207,15 +244,130 @@ function renderCollection() {
     name.className = "pet-card-name";
     name.textContent = pet.name;
     const rarity = document.createElement("div");
-    rarity.className = `pet-card-rarity ${pet.rarity.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`;
+    rarity.className = `pet-card-rarity ${getRarityClass(pet)}`;
     rarity.textContent = `${pet.rarity} · +${formatNumber(pet.cps)}/s`;
     const countBadge = document.createElement("span");
     countBadge.className = "pet-card-count";
     countBadge.textContent = `×${state.pets[pet.name]}`;
+    const activeBadge = document.createElement("span");
+    activeBadge.className = "pet-card-active";
+    activeBadge.textContent = active ? "ATIVO" : "VER";
     copy.append(name, rarity);
-    card.append(emoji, copy, countBadge);
+    card.append(emoji, copy, countBadge, activeBadge);
+    card.addEventListener("click", () => openPetDetails(pet.name));
     ui.collection.append(card);
   }
+  const availablePets = getAvailablePets().filter((pet) => !state.pets[pet.name]);
+  for (const pet of availablePets) {
+    const card = document.createElement("div");
+    card.className = `pet-card available ${getRarityClass(pet)}`;
+    card.setAttribute("aria-label", `${pet.name}, ${pet.rarity}, disponível nos ovos`);
+    const icon = document.createElement("span");
+    icon.className = "pet-card-emoji";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = pet.emoji;
+    const copy = document.createElement("div");
+    copy.className = "pet-card-copy";
+    const name = document.createElement("div");
+    name.className = "pet-card-name";
+    name.textContent = pet.name;
+    const rarity = document.createElement("div");
+    rarity.className = `pet-card-rarity ${getRarityClass(pet)}`;
+    rarity.textContent = `${pet.rarity} · Disponível nos ovos`;
+    copy.append(name, rarity);
+    card.append(icon, copy);
+    ui.collection.append(card);
+  }
+  for (const pet of pets.filter((item) => item.unlockAt > state.totalClicks)) {
+    const card = document.createElement("div");
+    card.className = `pet-card locked ${getRarityClass(pet)}`;
+    card.setAttribute("aria-label", `${pet.rarity} bloqueado, desbloqueia em ${formatNumber(pet.unlockAt)} cliques`);
+    const icon = document.createElement("span");
+    icon.className = "pet-card-emoji";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "🔒";
+    const copy = document.createElement("div");
+    copy.className = "pet-card-copy";
+    const name = document.createElement("div");
+    name.className = "pet-card-name";
+    name.textContent = "Pet misterioso";
+    const rarity = document.createElement("div");
+    rarity.className = `pet-card-rarity ${getRarityClass(pet)}`;
+    rarity.textContent = `${pet.rarity} · ${formatNumber(pet.unlockAt - state.totalClicks)} cliques`;
+    copy.append(name, rarity);
+    card.append(icon, copy);
+    ui.collection.append(card);
+  }
+}
+
+function renderNextUnlock() {
+  const nextPet = pets.find((pet) => pet.unlockAt > state.totalClicks);
+  const panel = document.getElementById("next-unlock");
+  const label = document.getElementById("next-unlock-label");
+  const name = document.getElementById("next-unlock-name");
+  const rarity = document.getElementById("next-unlock-rarity");
+  const progress = document.getElementById("next-unlock-progress");
+  if (!nextPet) {
+    panel.hidden = true;
+    return;
+  }
+  const previousMilestone = pets.reduce((latest, pet) => pet.unlockAt <= state.totalClicks ? Math.max(latest, pet.unlockAt) : latest, 0);
+  const range = nextPet.unlockAt - previousMilestone;
+  const earned = state.totalClicks - previousMilestone;
+  panel.hidden = false;
+  label.textContent = `${formatNumber(nextPet.unlockAt - state.totalClicks)} cliques para desbloquear`;
+  name.textContent = nextPet.name;
+  rarity.textContent = nextPet.rarity;
+  progress.style.width = `${Math.min(100, (earned / range) * 100)}%`;
+}
+
+function renderActivePet() {
+  const pet = pets.find((item) => item.name === state.selectedPet);
+  ui.mainPet.textContent = pet ? pet.emoji : "🐸";
+  ui.activePetLabel.textContent = pet ? `${pet.name} · ${pet.rarity}` : "Pet inicial";
+  ui.mainPet.parentElement.setAttribute(
+    "aria-label",
+    `Clique para ganhar braincoins com ${pet ? pet.name : "seu pet inicial"}`
+  );
+}
+
+let petDialogReturnPetName;
+
+function openPetDetails(petName) {
+  const pet = pets.find((item) => item.name === petName && state.pets[item.name] > 0);
+  if (!pet) return;
+  petDialogReturnPetName = pet.name;
+  ui.petDetailArt.textContent = pet.emoji;
+  ui.petDetailName.textContent = pet.name;
+  ui.petDetailRarity.textContent = pet.rarity;
+  ui.petDetailRarity.className = `pet-detail-rarity ${getRarityClass(pet)}`;
+  ui.petDetailDescription.textContent = pet.description;
+  ui.petDetailCps.textContent = `+${formatNumber(pet.cps)} moedas/s`;
+  ui.petDetailCount.textContent = `×${state.pets[pet.name]}`;
+  const availablePets = getAvailablePets();
+  const totalWeight = availablePets.reduce((sum, item) => sum + item.weight, 0);
+  ui.petDetailChance.textContent = `${formatNumber((pet.weight / totalWeight) * 100)}%`;
+  const active = state.selectedPet === pet.name;
+  ui.petSelectButton.textContent = active ? "✓ Já está selecionado" : "Escolher para clicar";
+  ui.petSelectButton.disabled = active;
+  ui.petSelectButton.dataset.petName = pet.name;
+  ui.petDialog.showModal();
+}
+
+function getRarityClass(pet) {
+  return pet.rarity.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function selectPet(petName) {
+  const pet = pets.find((item) => item.name === petName && state.pets[item.name] > 0);
+  if (!pet) return;
+  state.selectedPet = pet.name;
+  saveState();
+  render();
+  playTone(620, 0.1, "sine");
+  showToast(`${pet.emoji} ${pet.name} agora é seu pet de clique!`);
+  ui.petDialog.close();
+  document.getElementById("click-button").focus();
 }
 
 function renderAchievements() {
@@ -261,8 +413,10 @@ function buyUpgrade(id) {
 }
 
 function handleClick(event) {
+  const previousClicks = state.totalClicks;
   state.coins += state.clickPower;
   state.totalClicks += 1;
+  if (announcePetUnlock(previousClicks, state.totalClicks)) saveState();
   const button = event.currentTarget;
   button.classList.add("is-clicked");
   window.setTimeout(() => button.classList.remove("is-clicked"), 95);
@@ -289,8 +443,9 @@ function createFloatingCoin(event, text) {
 }
 
 function hatchPet() {
-  if (hatchInProgress || state.coins < EGG_COST) return;
-  state.coins -= EGG_COST;
+  const cost = getEggCost();
+  if (hatchInProgress || state.coins < cost) return;
+  state.coins -= cost;
   hatchInProgress = true;
   ui.overlay.classList.add("visible");
   ui.overlay.setAttribute("aria-hidden", "false");
@@ -303,7 +458,9 @@ function hatchPet() {
 
   window.setTimeout(() => {
     const pet = pickPet();
+    state.eggsHatched += 1;
     state.pets[pet.name] = (state.pets[pet.name] || 0) + 1;
+    if (!state.selectedPet) state.selectedPet = pet.name;
     ui.hatchEgg.textContent = pet.emoji;
     ui.hatchEgg.classList.add("revealed");
     ui.hatchResult.textContent = `${pet.name}! (${pet.rarity}) +${formatNumber(pet.cps)} moedas/s`;
@@ -323,13 +480,22 @@ function hatchPet() {
 }
 
 function pickPet() {
-  const totalWeight = pets.reduce((sum, pet) => sum + pet.weight, 0);
+  const availablePets = getAvailablePets();
+  const totalWeight = availablePets.reduce((sum, pet) => sum + pet.weight, 0);
   let roll = Math.random() * totalWeight;
-  for (const pet of pets) {
+  for (const pet of availablePets) {
     roll -= pet.weight;
     if (roll < 0) return pet;
   }
   return pets[0];
+}
+
+function announcePetUnlock(previousClicks, currentClicks) {
+  const newlyUnlocked = pets.find((pet) => pet.unlockAt > previousClicks && pet.unlockAt <= currentClicks);
+  if (!newlyUnlocked) return false;
+  showToast(`🔓 Novo pet disponível nos ovos: ${newlyUnlocked.name} (${newlyUnlocked.rarity})!`);
+  playTone(740, 0.16, "sine");
+  return true;
 }
 
 function checkAchievements() {
@@ -424,6 +590,20 @@ document.getElementById("click-button").addEventListener("click", handleClick);
 ui.hatchButton.addEventListener("click", hatchPet);
 document.getElementById("share-button").addEventListener("click", shareRecord);
 document.getElementById("ad-boost-button").addEventListener("click", requestAdBoost);
+ui.petDialogClose.addEventListener("click", () => ui.petDialog.close());
+ui.petSelectButton.addEventListener("click", () => selectPet(ui.petSelectButton.dataset.petName));
+ui.petDialog.addEventListener("click", (event) => {
+  if (event.target === ui.petDialog) ui.petDialog.close();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && ui.petDialog.open) ui.petDialog.close();
+});
+ui.petDialog.addEventListener("close", () => {
+  const selectedCard = [...ui.collection.querySelectorAll(".pet-card[data-pet-name]")]
+    .find((card) => card.dataset.petName === petDialogReturnPetName);
+  if (selectedCard) selectedCard.focus();
+  petDialogReturnPetName = null;
+});
 
 applyOfflineEarnings();
 render();
