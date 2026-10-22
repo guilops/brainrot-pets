@@ -4,8 +4,9 @@ Jogo clicker de mascotes feito com HTML, CSS e JavaScript. Não precisa de build
 
 ## Como funciona o jogo
 
-- Clique no mascote principal para ganhar braincoins e subir de nível.
-- Os ovos ficam mais caros a cada chocada. Mais cliques desbloqueiam novos mascotes e aumentam as chances de encontrar raridades especiais.
+- Ao abrir o jogo, escolha o **Modo normal**, com progresso salvo, ou a **Corrida contra o tempo**, com partidas independentes de 1, 10, 30 ou 60 minutos. Ao zerar o relógio, a partida congela e mostra um resumo compartilhável.
+- Clique no mascote principal para ganhar braincoins e subir de nível. A loja tem 16 upgrades: força de clique, renda automática, bônus por mascote, multiplicadores e descontos nos ovos.
+- O acervo tem mais de 40 mascotes, de Comum a Divino. Novos pets ficam disponíveis conforme você clica, e os ovos começam baratos, sobem de preço gradualmente e favorecem mascotes ainda não colecionados.
 - Na coleção, toque em um mascote que você já ganhou para ver a ficha, a renda passiva e a chance atual no ovo; use **Escolher para clicar** para colocá-lo na área principal. O mascote escolhido fica salvo no navegador.
 - Os mascotes duplicados continuam acumulando renda passiva.
 

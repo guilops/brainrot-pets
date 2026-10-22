@@ -20,6 +20,8 @@
       </a>
       <div class="topbar-right">
         <div class="level-pill"><span aria-hidden="true">⭐</span> Nível <strong id="player-level">1</strong></div>
+        <button class="mode-pill" id="mode-label" type="button" hidden>🎮 Modo normal</button>
+        <button class="share-button" id="open-mode-button" type="button">🎮 Modos</button>
         <button class="share-button" id="share-button" type="button"><span aria-hidden="true">↗</span> Compartilhar recorde</button>
       </div>
     </header>
@@ -30,6 +32,12 @@
       <span>Integração via service worker adicionada ✨</span>
       <span class="ad-placeholder">Banner exige o código próprio desse formato</span>
     </aside>
+
+    <section class="timer-panel" id="timer-panel" aria-live="polite" hidden>
+      <div class="timer-heading"><span aria-hidden="true">⏱️</span> <span id="timer-mode-name">CORRIDA CONTRA O TEMPO</span></div>
+      <strong class="timer-countdown" id="timer-label">1:00</strong>
+      <div class="timer-progress-track"><span id="timer-progress"></span></div>
+    </section>
 
     <main class="game-layout">
       <section class="play-column" aria-label="Área do jogo">
@@ -72,7 +80,7 @@
           <div class="egg-copy">
             <p class="eyebrow">SURPRESA, SURPRESA!</p>
             <h2 id="egg-title">Ovo misterioso <span aria-hidden="true">🥚</span></h2>
-            <p>Quem será que vem aí? Cada ovo fica mais caro, e cliques liberam pets novos!</p>
+            <p>Ovos acessíveis, muita variedade e 85% de chance de vir um pet novo!</p>
           </div>
           <button class="hatch-button" id="hatch-button" type="button">
             <span class="egg-emoji" aria-hidden="true">🥚</span>
@@ -109,6 +117,7 @@
             <div><p class="eyebrow">FICAR RICO NO AUTOMÁTICO</p><h2 id="shop-title">Loja de upgrades</h2></div>
             <span class="shop-bag" aria-hidden="true">🛍️</span>
           </div>
+          <p class="shop-hint">Upgrades acumulam e seus efeitos se combinam!</p>
           <div class="upgrade-list" id="upgrade-list"></div>
         </section>
 
@@ -135,6 +144,42 @@
   </div>
 
   <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+  <dialog class="mode-dialog" id="mode-dialog" aria-labelledby="mode-dialog-title">
+    <div class="mode-dialog-brand" aria-hidden="true">🧠✨</div>
+    <p class="eyebrow">ESCOLHA SUA AVENTURA</p>
+    <h2 id="mode-dialog-title">Como você quer jogar?</h2>
+    <p class="mode-dialog-intro">Colecione sem pressa ou veja quantas moedas consegue farmar antes do relógio zerar!</p>
+    <button class="mode-choice normal-choice" id="normal-mode-button" type="button">
+      <span class="mode-choice-icon" aria-hidden="true">🌈</span>
+      <span class="mode-choice-copy"><strong>Modo normal</strong><small>Jogue no seu ritmo. Seu progresso fica salvo!</small></span>
+      <span class="mode-choice-arrow" aria-hidden="true">→</span>
+    </button>
+    <div class="timed-choice">
+      <div class="mode-choice timed-choice-heading">
+        <span class="mode-choice-icon" aria-hidden="true">⏱️</span>
+        <span class="mode-choice-copy"><strong>Corrida contra o tempo</strong><small>Começa do zero. Faça o máximo antes do fim!</small></span>
+      </div>
+      <div class="duration-options" aria-label="Escolha a duração da corrida">
+        <button type="button" data-duration="60">1 minuto</button>
+        <button type="button" data-duration="600">10 minutos</button>
+        <button type="button" data-duration="1800">30 minutos</button>
+        <button type="button" data-duration="3600">1 hora</button>
+      </div>
+    </div>
+    <p class="mode-dialog-note">A corrida é uma partida separada; ela não altera seu progresso do modo normal.</p>
+  </dialog>
+  <dialog class="run-dialog" id="run-dialog" aria-labelledby="run-dialog-title">
+    <div class="run-result-icon" aria-hidden="true">🏁</div>
+    <p class="eyebrow">FIM DE JOGO!</p>
+    <h2 id="run-dialog-title">Corrida finalizada!</h2>
+    <p class="run-result-subtitle" id="run-result-subtitle">Olha só o que você conquistou:</p>
+    <div class="run-summary-grid" id="run-summary"></div>
+    <div class="run-result-actions">
+      <button class="share-button" id="share-run-button" type="button">↗ Compartilhar resultado</button>
+      <button class="run-retry-button" id="retry-run-button" type="button">🏁 Correr de novo</button>
+      <button class="run-menu-button" id="run-menu-button" type="button">Escolher outro modo</button>
+    </div>
+  </dialog>
   <div class="hatch-overlay" id="hatch-overlay" aria-hidden="true">
     <div class="hatch-modal" role="status" aria-live="polite">
       <span class="hatch-egg" id="hatch-egg">🥚</span>
