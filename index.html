@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf7ff">
+  <meta name="description" content="Clique, choque ovos e monte sua coleção de mascotes malucos!">
+  <title>Brainrot Pets — clique e colecione!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Brainrot Pets — início">
+        <span class="brand-icon" aria-hidden="true">🧠</span>
+        <span>brainrot<span class="brand-accent">pets</span></span>
+      </a>
+      <div class="topbar-right">
+        <div class="level-pill"><span aria-hidden="true">⭐</span> Nível <strong id="player-level">1</strong></div>
+        <button class="share-button" id="share-button" type="button"><span aria-hidden="true">↗</span> Compartilhar recorde</button>
+      </div>
+    </header>
+
+    <!-- Personalize ou substitua este espaço pelo código do seu provedor de anúncios. -->
+    <aside class="ad-banner" aria-label="Espaço reservado para anúncio">
+      <span class="ad-tag">ANÚNCIO</span>
+      <span>Seu próximo power-up pode caber aqui ✨</span>
+      <span class="ad-placeholder">Espaço para banner responsivo</span>
+    </aside>
+
+    <main class="game-layout">
+      <section class="play-column" aria-label="Área do jogo">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">SEU CANTINHO CAÓTICO</p>
+            <h1>Pronto pra farmar? <span aria-hidden="true">😎</span></h1>
+          </div>
+          <div class="streak-badge"><span aria-hidden="true">🔥</span> <span id="click-count">0</span> cliques</div>
+        </div>
+
+        <div class="score-card">
+          <div class="score-label"><span class="coin-icon" aria-hidden="true">🪙</span> SEUS BRAINCOINS</div>
+          <div class="score-value" id="coin-count" aria-live="polite">0</div>
+          <div class="income-line"><span class="pulse-dot"></span> <span id="cps-count">0</span> moedas por segundo</div>
+          <div class="level-progress" aria-label="Progresso para o próximo nível">
+            <div class="progress-track"><span id="level-progress"></span></div>
+            <span id="progress-label">0 / 100 XP</span>
+          </div>
+        </div>
+
+        <div class="click-zone">
+          <div class="click-hint">TOQUE NO PET PRA GANHAR MOEDAS!</div>
+          <button class="pet-button" id="click-button" type="button" aria-label="Clique para ganhar braincoins">
+            <span class="pet-glow"></span>
+            <span class="pet-character" id="main-pet" aria-hidden="true">🐸</span>
+            <span class="pet-spark spark-one" aria-hidden="true">✦</span>
+            <span class="pet-spark spark-two" aria-hidden="true">✧</span>
+            <span class="pet-spark spark-three" aria-hidden="true">✦</span>
+          </button>
+          <div class="tap-label">TAP TAP TAP <span aria-hidden="true">👆</span></div>
+          <div class="quick-stats">
+            <div class="quick-stat"><span aria-hidden="true">🖱️</span><span><strong id="total-clicks">0</strong><small>cliques totais</small></span></div>
+            <div class="quick-stat"><span aria-hidden="true">🐾</span><span><strong id="pet-count">0</strong><small>pets na coleção</small></span></div>
+          </div>
+        </div>
+
+        <section class="egg-card" aria-labelledby="egg-title">
+          <div class="egg-copy">
+            <p class="eyebrow">SURPRESA, SURPRESA!</p>
+            <h2 id="egg-title">Ovo misterioso <span aria-hidden="true">🥚</span></h2>
+            <p>Quem será que vem aí? Cada pet dá moedas sem parar!</p>
+          </div>
+          <button class="hatch-button" id="hatch-button" type="button">
+            <span class="egg-emoji" aria-hidden="true">🥚</span>
+            <span>Chocar ovo<strong><span aria-hidden="true">🪙</span> <span id="egg-cost">50</span></strong></span>
+          </button>
+        </section>
+
+        <section class="collection-card" aria-labelledby="collection-title">
+          <div class="section-heading">
+            <div><p class="eyebrow">SUA TURMA</p><h2 id="collection-title">Coleção de pets</h2></div>
+            <span class="collection-count" id="collection-count">0 pets</span>
+          </div>
+          <div class="collection-grid" id="collection-grid">
+            <div class="empty-collection"><span aria-hidden="true">🫣</span><p>Seus pets vão aparecer aqui!</p><small>Choque um ovo para começar</small></div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-column">
+        <section class="shop-card" aria-labelledby="shop-title">
+          <div class="section-heading shop-heading">
+            <div><p class="eyebrow">FICAR RICO NO AUTOMÁTICO</p><h2 id="shop-title">Loja de upgrades</h2></div>
+            <span class="shop-bag" aria-hidden="true">🛍️</span>
+          </div>
+          <div class="upgrade-list" id="upgrade-list"></div>
+        </section>
+
+        <section class="boost-card">
+          <div class="boost-icon" aria-hidden="true">🎬</div>
+          <div class="boost-copy"><strong>Hora do boost!</strong><p>Assista a um anúncio e ganhe 2x moedas por um tempinho.</p></div>
+          <!-- Integre aqui o SDK do provedor de anúncios com recompensa. -->
+          <button id="ad-boost-button" class="ad-boost-button" type="button">Ganhar 2x <span aria-hidden="true">⚡</span></button>
+        </section>
+
+        <section class="achievement-card" aria-labelledby="achievement-title">
+          <div class="section-heading">
+            <div><p class="eyebrow">MOMENTOS ICÔNICOS</p><h2 id="achievement-title">Conquistas</h2></div>
+            <span class="trophy-icon" aria-hidden="true">🏆</span>
+          </div>
+          <div class="achievement-list" id="achievement-list"></div>
+        </section>
+
+        <p class="save-note"><span aria-hidden="true">💾</span> Seu progresso fica salvo neste dispositivo.</p>
+      </aside>
+    </main>
+
+    <footer class="footer-note">Feito para clicar, colecionar e dar risada. <span aria-hidden="true">💜</span></footer>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+  <div class="hatch-overlay" id="hatch-overlay" aria-hidden="true">
+    <div class="hatch-modal" role="status" aria-live="polite">
+      <span class="hatch-egg" id="hatch-egg">🥚</span>
+      <p class="eyebrow">PREPARANDO UMA SURPRESA...</p>
+      <h2 id="hatch-result">O que será que vem aí?</h2>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
