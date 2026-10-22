@@ -9,6 +9,14 @@ Jogo clicker de mascotes feito com HTML, CSS e JavaScript. Não precisa de build
 - Na coleção, toque em um mascote que você já ganhou para ver a ficha, a renda passiva e a chance atual no ovo; use **Escolher para clicar** para colocá-lo na área principal. O mascote escolhido fica salvo no navegador.
 - Os mascotes duplicados continuam acumulando renda passiva.
 
+## Monetag
+
+O `sw.js` na raiz contém a configuração de zona Monetag fornecida para este site. O jogo registra esse service worker pelo caminho relativo `./sw.js`, compatível com o endereço de projeto do GitHub Pages (`/brainrot-pets/`).
+
+Esse arquivo é uma integração de service worker; ele não contém o código de banner nem o de anúncio em vídeo recompensado. Os espaços de banner e recompensa continuam reservados até que os respectivos códigos de formato sejam fornecidos pela Monetag. A disponibilidade e o comportamento dos anúncios dependem das configurações da zona, do navegador e das políticas do provedor.
+
+Antes de monetizar um jogo destinado a crianças, revise as configurações de adequação de anúncios, privacidade e consentimento para a sua audiência e jurisdição.
+
 ## Publicar gratuitamente com GitHub Pages
 
 ### 1. Crie um repositório
@@ -58,7 +66,7 @@ Confira o resultado na aba **Actions**. Quando a execução terminar com sucesso
 ## Personalizar antes de compartilhar
 
 - Edite os mascotes, seus nomes, raridades e ganhos em `script.js`.
-- Substitua o espaço de banner e conecte seu provedor de anúncios em `index.html`.
-- A integração de anúncio recompensado fica marcada em `script.js`. O botão não concede moedas enquanto o SDK do provedor não estiver conectado.
+- O service worker Monetag fica em `sw.js` e é registrado por `script.js`.
+- O espaço de banner e a integração de anúncio recompensado em `index.html` continuam reservados até você fornecer os códigos específicos desses formatos.
 
 O progresso é salvo no `localStorage` do navegador de cada jogador; não há conta, sincronização entre dispositivos ou banco de dados. O GitHub Pages hospeda o site estático gratuitamente, mas não oferece um servidor para processar pagamentos, contas ou dados de jogadores.

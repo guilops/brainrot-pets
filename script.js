@@ -576,6 +576,16 @@ function requestAdBoost() {
   showToast("🎬 O anúncio recompensado ainda não está conectado.");
 }
 
+function registerMonetagServiceWorker() {
+  if (!("serviceWorker" in navigator) || window.location.protocol === "file:") return;
+
+  navigator.serviceWorker.register("./sw.js", { scope: "./" })
+    .then(() => console.info("Service worker da Monetag registrado."))
+    .catch((error) => {
+      console.error("Não foi possível registrar o service worker da Monetag.", error);
+    });
+}
+
 function applyOfflineEarnings() {
   const now = Date.now();
   const elapsedSeconds = Math.min(Math.max((now - state.savedAt) / 1000, 0), MAX_OFFLINE_SECONDS);
@@ -608,6 +618,7 @@ ui.petDialog.addEventListener("close", () => {
 applyOfflineEarnings();
 render();
 checkAchievements();
+registerMonetagServiceWorker();
 
 window.setInterval(() => {
   const cps = getCps();
